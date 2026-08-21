@@ -372,12 +372,12 @@
   function parseMarkersInTextNode(node) {
     const original = node.nodeValue || "";
     let text = original;
-    if (!text.includes("[[m:") && !text.includes("[[M:") && MARKUP?.tagText) {
+    if (!text.includes("[[math") && MARKUP?.tagText) {
       text = MARKUP.tagText(text);
     }
-    if (!text.includes("[[m:") && !text.includes("[[M:")) return 0;
+    if (!text.includes("[[math")) return 0;
 
-    const re = /\[\[(m|M):([\s\S]*?)\]\]/g;
+    const re = /\[\[math(?::(block))?\]\]([\s\S]*?)\[\[\/math\]\]/g;
     const fragment = document.createDocumentFragment();
     let cursor = 0;
     let count = 0;
@@ -385,10 +385,10 @@
     while ((match = re.exec(text))) {
       if (match.index > cursor) fragment.append(document.createTextNode(text.slice(cursor, match.index)));
       const span = document.createElement("span");
-      span.className = match[1] === "M" ? "math-display" : "math-inline";
+      span.className = match[1] === "block" ? "math-display" : "math-inline";
       span.dataset.mathSource = match[2];
       const latex = toLatex(match[2]);
-      span.textContent = match[1] === "M" ? `\\[${latex}\\]` : `\\(${latex}\\)`;
+      span.textContent = match[1] === "block" ? `\\[${latex}\\]` : `\\(${latex}\\)`;
       fragment.append(span);
       cursor = match.index + match[0].length;
       count += 1;
