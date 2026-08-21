@@ -9,9 +9,10 @@
   <link rel="stylesheet" href="assets/styles.css">
   <script>
     window.MathJax = {
+      startup: { typeset: false },
       tex: {
-        inlineMath: [['\\(', '\\)'], ['$', '$']],
-        displayMath: [['\\[', '\\]'], ['$$', '$$']],
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
         processEscapes: true
       },
       options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
@@ -60,6 +61,7 @@
   <script src="src/exams/2026-1-p2.js"></script>
   <script src="src/exams/2025-1-p3.js"></script>
   <script src="src/exams/2025-2-p3.js"></script>
+  <script src="src/math-markup.js"></script>
   <script src="src/app.js"></script>
   <script src="src/enhancements.js"></script>
   <script src="src/persistence-patch.js"></script>
