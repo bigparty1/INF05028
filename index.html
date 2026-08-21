@@ -3,455 +3,113 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Guia de estudos semana a semana para INF05028 — Projeto e Análise de Algoritmos II.">
-  <title>Guia de Estudos — INF05028</title>
-  <style>
-    :root { color-scheme: light; --bg:#f6f7f9; --paper:#fff; --ink:#17202a; --muted:#59636e; --line:#d9dee5; --accent:#1d4f91; --soft:#eef4fb; --warn:#fff8e6; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; line-height:1.58; color:var(--ink); background:var(--bg); }
-    header { background:var(--paper); border-bottom:1px solid var(--line); }
-    .wrap { max-width:1040px; margin:0 auto; padding:28px 22px; }
-    h1,h2,h3,h4 { line-height:1.22; }
-    h1 { margin:0 0 8px; font-size:clamp(2rem,5vw,3.2rem); }
-    h2 { margin-top:38px; border-bottom:1px solid var(--line); padding-bottom:8px; }
-    h3 { margin-bottom:8px; }
-    p { margin:10px 0; }
-    a { color:var(--accent); }
-    nav { background:var(--paper); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:2; }
-    nav .wrap { padding-top:10px; padding-bottom:10px; display:flex; gap:14px; flex-wrap:wrap; }
-    nav a { text-decoration:none; font-weight:650; }
-    .lead { max-width:850px; font-size:1.08rem; color:var(--muted); }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
-    .card { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:16px; }
-    .card h3,.card h4 { margin-top:0; }
-    .note { background:var(--soft); border-left:4px solid var(--accent); padding:13px 15px; margin:16px 0; }
-    .warning { background:var(--warn); border-left:4px solid #b17a00; padding:13px 15px; margin:16px 0; }
-    .tag { display:inline-block; background:var(--soft); border:1px solid #c9d9ee; border-radius:999px; padding:2px 8px; margin:2px 4px 2px 0; font-size:.86rem; }
-    .week { background:var(--paper); border:1px solid var(--line); border-radius:12px; margin:16px 0; overflow:hidden; }
-    .week > summary { cursor:pointer; list-style:none; padding:16px 18px; font-weight:750; font-size:1.04rem; }
-    .week > summary::-webkit-details-marker { display:none; }
-    .week > summary::before { content:"▸"; margin-right:8px; }
-    .week[open] > summary::before { content:"▾"; }
-    .week .content { border-top:1px solid var(--line); padding:0 18px 18px; }
-    ul,ol { padding-left:22px; }
-    li { margin:5px 0; }
-    code { background:#f1f3f5; padding:1px 5px; border-radius:4px; }
-    table { width:100%; border-collapse:collapse; background:var(--paper); }
-    th,td { border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top; }
-    th { background:#f1f4f7; }
-    .checklist { list-style:none; padding-left:0; }
-    .checklist li { margin:8px 0; }
-    .checklist input { margin-right:8px; }
-    .formula { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:normal; }
-    footer { margin-top:44px; color:var(--muted); font-size:.92rem; }
-    @media print { nav { display:none; } body { background:#fff; } .week { break-inside:avoid; } .wrap { max-width:none; padding:12px; } }
-  </style>
+  <meta name="description" content="Plataforma de estudos da disciplina INF05028 — Projeto e Análise de Algoritmos II.">
+  <meta name="theme-color" content="#1f5fbf">
+  <title>INF05028 — Plataforma de Estudos</title>
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <div class="tag">INF05028</div><div class="tag">Projeto e Análise de Algoritmos II</div><div class="tag">2026/2</div>
-    <h1>Guia de Estudos Semana a Semana</h1>
-    <p class="lead">Roteiro de estudo estruturado a partir do relatório <strong>Guia de Estudos de Algoritmos.md</strong>, reorganizado conforme o cronograma de 2026/2 e reescrito em português brasileiro atual, formal e direto.</p>
+  <a class="skip-link" href="#app-main">Pular para o conteúdo</a>
+
+  <header class="topbar">
+    <div class="brand" aria-label="INF05028 Plataforma de Estudos">
+      <span class="brand-mark">A²</span>
+      <div>
+        <strong>INF05028</strong>
+        <small>Projeto e Análise de Algoritmos II</small>
+      </div>
+    </div>
+    <div class="top-actions">
+      <label class="search-box" aria-label="Buscar na trilha">
+        <span aria-hidden="true">⌕</span>
+        <input id="global-search" type="search" placeholder="Buscar tópico, fórmula ou exercício…" autocomplete="off">
+      </label>
+      <button id="theme-toggle" class="icon-button" type="button" title="Alternar tema" aria-label="Alternar tema">◐</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegação principal">
+      <nav id="main-nav" class="main-nav">
+        <button class="nav-item is-active" data-view="dashboard" type="button"><span>⌂</span> Dashboard</button>
+        <button class="nav-item" data-view="weeks" type="button"><span>≡</span> Trilha semanal</button>
+        <button class="nav-item" data-view="review" type="button"><span>↻</span> Revisão ativa</button>
+        <button class="nav-item" data-view="course" type="button"><span>i</span> Disciplina</button>
+        <button class="nav-item" data-view="settings" type="button"><span>⚙</span> Configurações</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="mini-progress" aria-label="Progresso de estudos">
+          <div class="row between"><span>Domínio</span><strong id="sidebar-progress-label">0%</strong></div>
+          <div class="progress-track"><div id="sidebar-progress-bar" class="progress-fill"></div></div>
+        </div>
+        <small>Dados salvos apenas neste navegador.</small>
+      </div>
+    </aside>
+
+    <main id="app-main" class="main-content" tabindex="-1">
+      <section id="view-dashboard" class="view is-active" data-view-panel="dashboard" aria-labelledby="dashboard-title">
+        <div id="dashboard-root"></div>
+      </section>
+
+      <section id="view-weeks" class="view" data-view-panel="weeks" aria-labelledby="weeks-title">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Trilha definitiva · 2026/2</p>
+            <h1 id="weeks-title">Estudo semana a semana</h1>
+            <p>17 blocos de calendário reconciliam o cronograma 2026/2 com as 16 semanas acadêmicas do plano de referência; o intervalo de 20–22/10 aparece como bloco autônomo.</p>
+          </div>
+          <div class="toolbar" role="group" aria-label="Filtros da trilha">
+            <select id="week-filter" aria-label="Filtrar semanas">
+              <option value="all">Todas</option>
+              <option value="current">Semana atual</option>
+              <option value="bookmarked">Favoritas</option>
+              <option value="pending">Pendentes</option>
+              <option value="mastered">Dominadas</option>
+            </select>
+            <button id="expand-current-week" class="button secondary" type="button">Ir para agora</button>
+          </div>
+        </div>
+        <div id="weeks-root"></div>
+      </section>
+
+      <section id="view-review" class="view" data-view-panel="review" aria-labelledby="review-title">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Recuperação ativa</p>
+            <h1 id="review-title">Revisão relâmpago</h1>
+            <p>Use cartões curtos para testar recuperação de memória antes de reler o material.</p>
+          </div>
+        </div>
+        <div id="review-root"></div>
+      </section>
+
+      <section id="view-course" class="view" data-view-panel="course" aria-labelledby="course-title">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Plano, cronograma e guia cruzados</p>
+            <h1 id="course-title">Informações da disciplina</h1>
+            <p>Regras, metodologia, bibliografia e rastreabilidade das fontes usadas pela plataforma.</p>
+          </div>
+        </div>
+        <div id="course-root"></div>
+      </section>
+
+      <section id="view-settings" class="view" data-view-panel="settings" aria-labelledby="settings-title">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Persistência local</p>
+            <h1 id="settings-title">Configurações e backup</h1>
+            <p>Exporte ou restaure notas, faltas, checklists, exercícios, favoritos e anotações.</p>
+          </div>
+        </div>
+        <div id="settings-root"></div>
+      </section>
+    </main>
   </div>
-</header>
-<nav>
-  <div class="wrap">
-    <a href="#como-usar">Como usar</a>
-    <a href="#rotina">Rotina</a>
-    <a href="#semanas">Semanas</a>
-    <a href="#formulas">Referência rápida</a>
-    <a href="#provas">Estratégia de prova</a>
-  </div>
-</nav>
-<main class="wrap">
-  <section id="como-usar">
-    <h2>Como usar este guia</h2>
-    <div class="grid">
-      <article class="card">
-        <h3>1. Entenda antes de memorizar</h3>
-        <p>Para cada técnica, saiba explicar <strong>qual é o estado do problema</strong>, <strong>por que a escolha é correta</strong> e <strong>de onde vem o custo assintótico</strong>. Fórmulas sem interpretação são frágeis em questões adaptadas.</p>
-      </article>
-      <article class="card">
-        <h3>2. Treine a resposta completa</h3>
-        <p>Nas questões de projeto de algoritmos, use como padrão: <strong>algoritmo/pseudocódigo → prova de corretude → análise de custo</strong>. Em programação dinâmica, acrescente definição do subproblema, casos base, recorrência, ordem de preenchimento e resposta final.</p>
-      </article>
-      <article class="card">
-        <h3>3. Use provas antigas como diagnóstico</h3>
-        <p>O histórico do projeto mostra recorrência de temas como notação assintótica, recorrências, busca binária modificada, divisão e conquista, programação dinâmica e caminhos mínimos. Resolva primeiro sem consultar a solução; use a correção apenas para identificar lacunas.</p>
-      </article>
-    </div>
-    <div class="warning">
-      <strong>Atenção ao semestre atual:</strong> o relatório reúne materiais de semestres e siglas diferentes. O calendário semanal abaixo segue o cronograma de <strong>2026/2</strong>. Pesos de avaliação e regras de correção de semestres anteriores devem ser tratados como referência histórica e confirmados nos canais oficiais da turma atual.
-    </div>
-  </section>
 
-  <section id="rotina">
-    <h2>Rotina recomendada</h2>
-    <table>
-      <thead><tr><th>Momento</th><th>Atividade</th><th>Meta</th></tr></thead>
-      <tbody>
-        <tr><td>Antes da aula</td><td>20–30 min de leitura introdutória e revisão da aula anterior.</td><td>Chegar sabendo quais perguntas fazer.</td></tr>
-        <tr><td>No mesmo dia</td><td>Reescrever definições e deduções com suas próprias palavras.</td><td>Produzir uma página de síntese por tópico.</td></tr>
-        <tr><td>Entre aulas</td><td>Resolver 2–4 exercícios curtos e pelo menos 1 questão que exija justificativa formal.</td><td>Transformar conhecimento passivo em habilidade de prova.</td></tr>
-        <tr><td>Fim da semana</td><td>Fazer uma revisão cumulativa de 45–60 min.</td><td>Conectar o tópico novo aos anteriores.</td></tr>
-        <tr><td>Pré-prova</td><td>Simulado cronometrado com provas/listas históricas.</td><td>Treinar seleção de estratégia e escrita objetiva.</td></tr>
-      </tbody>
-    </table>
-  </section>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <section id="semanas">
-    <h2>Plano semana a semana</h2>
-
-    <details class="week" open>
-      <summary>Semana 1 — 06/08 — Introdução e organização da disciplina</summary>
-      <div class="content">
-        <p><span class="tag">Administrativo</span><span class="tag">Visão geral</span></p>
-        <h4>Objetivo</h4>
-        <p>Entender o que a disciplina exige: análise assintótica, projeto de algoritmos, prova de corretude e escolha consciente de paradigmas.</p>
-        <h4>Estude</h4>
-        <ul>
-          <li>Diferença entre <strong>descrever um algoritmo</strong>, <strong>provar que ele é correto</strong> e <strong>analisar seu custo</strong>.</li>
-          <li>Estrutura recomendada para respostas dissertativas.</li>
-          <li>Mapa do semestre: recorrências → divisão e conquista → programação dinâmica → caminhos mínimos → análise amortizada.</li>
-        </ul>
-        <h4>Entrega pessoal da semana</h4>
-        <ul class="checklist"><li><input type="checkbox">Montar uma folha com o modelo de resposta “algoritmo / corretude / custo”.</li><li><input type="checkbox">Separar uma pasta de erros para registrar cada conceito confundido em exercícios.</li></ul>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 2 — 11 e 13/08 — Análise assintótica, corretude e revisão de PAA I</summary>
-      <div class="content">
-        <p><span class="tag">O</span><span class="tag">Ω</span><span class="tag">Θ</span><span class="tag">o</span><span class="tag">ω</span><span class="tag">Laboratório 1</span></p>
-        <h4>Domínio esperado</h4>
-        <ul>
-          <li>Comparar funções polinomiais, logarítmicas e exponenciais sem depender de exemplos numéricos isolados.</li>
-          <li>Usar as definições formais de O, Ω e Θ para justificar afirmações.</li>
-          <li>Reconhecer propriedades verdadeiras e produzir contraexemplos para propriedades falsas.</li>
-          <li>Revisar BFS/DFS, busca binária e provas simples de corretude como base para os próximos tópicos.</li>
-        </ul>
-        <h4>Prática sugerida</h4>
-        <p>Faça blocos curtos de V/F sobre crescimento assintótico. Para cada item, escreva uma justificativa de 2–4 linhas. Evite responder “por intuição”.</p>
-        <div class="note"><strong>Erro recorrente:</strong> tratar mudança de base do logaritmo como mudança assintótica. Bases constantes positivas diferentes de 1 alteram apenas um fator constante.</div>
-      </div>
-    </details>
-
-    <details class="week" open>
-      <summary>Semana 3 — 18 e 20/08 — Recorrências, Merge Sort, substituição e introdução ao Método Mestre</summary>
-      <div class="content">
-        <p><span class="tag">Árvore de recursão</span><span class="tag">Substituição</span><span class="tag">Método Mestre</span></p>
-        <h4>Domínio esperado</h4>
-        <ul>
-          <li>Para uma recorrência, identificar número de níveis, número de nós por nível, tamanho do subproblema, custo por nó, custo por nível e número de folhas.</li>
-          <li>Somar custos por nível e reconhecer quando raiz, níveis intermediários ou folhas dominam.</li>
-          <li>Aplicar o método da substituição com hipótese indutiva clara e constantes explícitas.</li>
-          <li>Entender a forma <span class="formula">T(n)=aT(n/b)+f(n)</span> antes de aplicar o Método Mestre.</li>
-        </ul>
-        <h4>Prática sugerida</h4>
-        <ul>
-          <li>Resolver integralmente <span class="formula">T(n)=T(n-1)+n</span> por expansão/árvore.</li>
-          <li>Resolver integralmente <span class="formula">T(n)=4T(n/2)+n</span> por árvore e depois confirmar por substituição ou Método Mestre.</li>
-          <li>Treinar recorrências em que <span class="formula">f(n)</span> é menor, igual ou maior do que <span class="formula">n^{log_b a}</span>.</li>
-        </ul>
-        <div class="note"><strong>Meta da semana:</strong> não apenas chegar ao Θ correto; saber explicar <em>por que</em> o termo dominante aparece.</div>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 4 — 25 e 27/08 — Prova do Método Mestre, Akra–Bazzi, inversões e Karatsuba</summary>
-      <div class="content">
-        <p><span class="tag">Akra–Bazzi</span><span class="tag">Inversões</span><span class="tag">Karatsuba</span></p>
-        <h4>Domínio esperado</h4>
-        <ul>
-          <li>Saber quando o Método Mestre se aplica e reconhecer recorrências fora de sua forma direta.</li>
-          <li>Entender a motivação do Akra–Bazzi para divisões não uniformes.</li>
-          <li>Contar inversões por modificação do Merge Sort em <span class="formula">O(n log n)</span>.</li>
-          <li>Karatsuba: reduzir quatro multiplicações de metades para três chamadas recursivas, obtendo <span class="formula">T(n)=3T(n/2)+O(n)</span>.</li>
-        </ul>
-        <h4>Prática sugerida</h4>
-        <p>Derive Karatsuba em papel, incluindo o termo cruzado. Em seguida, escreva a árvore de recursão e calcule a quantidade de multiplicações de um dígito no caso base.</p>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 5 — 01 e 03/09 — Strassen e Par de Pontos Mais Próximos</summary>
-      <div class="content">
-        <p><span class="tag">Strassen</span><span class="tag">Geometria computacional</span><span class="tag">Combine</span></p>
-        <h4>Domínio esperado</h4>
-        <ul>
-          <li>Strassen usa <strong>7</strong> multiplicações recursivas de submatrizes, não 8.</li>
-          <li>Relacionar a estrutura de Strassen à recorrência <span class="formula">T(n)=7T(n/2)+O(n²)</span>.</li>
-          <li>No Par Mais Próximo, entender por que a combinação considera apenas uma faixa central e por que cada ponto precisa ser comparado com uma quantidade constante de sucessores quando a faixa está ordenada por y.</li>
-          <li>Distinguir o custo de pré-ordenação do custo recursivo e evitar reordenar tudo dentro de cada chamada.</li>
-        </ul>
-        <h4>Teste de compreensão</h4>
-        <p>Explique em voz alta por que o passo de combinação do Par Mais Próximo é linear. Se a explicação depender apenas de “porque o livro diz que são sete”, revise o argumento geométrico.</p>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 6 — 08 e 10/09 — Seleção, limite inferior para ordenação e FFT</summary>
-      <div class="content">
-        <p><span class="tag">Seleção</span><span class="tag">Lower bound</span><span class="tag">FFT</span><span class="tag">Convolução</span></p>
-        <h4>Domínio esperado</h4>
-        <ul>
-          <li>Entender a prova do limite inferior de <span class="formula">Ω(n log n)</span> para ordenação por comparação via árvore de decisão e pelo menos <span class="formula">n!</span> folhas.</li>
-          <li>Reconhecer que esse limite se refere a <strong>algoritmos baseados em comparação</strong>.</li>
-          <li>Relacionar convolução e multiplicação de polinômios ao uso da Transformada Rápida de Fourier.</li>
-          <li>Revisar raízes da unidade e a lógica de dividir coeficientes pares e ímpares.</li>
-        </ul>
-        <h4>Prática sugerida</h4>
-        <p>Faça uma prova curta do lower bound sem consultar material. Depois, calcule manualmente uma FFT pequena (por exemplo, 4 pontos) apenas para consolidar a mecânica.</p>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 7 — 15 e 17/09 — Prática e laboratório de Divisão e Conquista</summary>
-      <div class="content">
-        <p><span class="tag">Aula prática 1</span><span class="tag">Laboratório 2</span></p>
-        <h4>Objetivo</h4>
-        <p>Converter teoria em projeto de algoritmo. O relatório e as listas/provas históricas destacam variações de busca binária e problemas de combinação em <span class="formula">O(n log n)</span>.</p>
-        <h4>Treine especialmente</h4>
-        <ul>
-          <li>Índice fixo em vetor ordenado de inteiros distintos: encontrar <span class="formula">i</span> com <span class="formula">A[i]=i</span> em <span class="formula">O(log n)</span>.</li>
-          <li>Última ocorrência de um valor em vetor ordenado com repetições.</li>
-          <li>Busca em vetor crescente rotacionado.</li>
-          <li>Pontos máximos (skyline) por divisão e conquista.</li>
-          <li>Contagem de inversões fortes por modificação do Merge Sort.</li>
-        </ul>
-        <div class="note"><strong>Padrão de prova:</strong> justifique exatamente por que metade da entrada pode ser descartada ou por que o combine permanece linear.</div>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 8 — 22 e 24/09 — Revisão e Prova 1</summary>
-      <div class="content">
-        <p><span class="tag">Revisão</span><span class="tag">Prova 1</span></p>
-        <h4>Plano de revisão</h4>
-        <ol>
-          <li>Recorrências: uma questão por árvore, substituição e Método Mestre.</li>
-          <li>Divisão e conquista: uma questão com combine não trivial.</li>
-          <li>Busca binária modificada: uma questão com prova de descarte.</li>
-          <li>V/F conceitual: Strassen, Karatsuba, lower bound e análise assintótica.</li>
-        </ol>
-        <h4>Critério para considerar um tópico dominado</h4>
-        <p>Você consegue produzir a solução completa sem consultar notas e consegue explicar um contraexemplo para pelo menos uma formulação errada sobre o mesmo tema.</p>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 9 — 29/09 e 01/10 — Escalonamento de intervalos com pesos e Mochila</summary>
-      <div class="content">
-        <p><span class="tag">Programação Dinâmica</span><span class="tag">Weighted Interval Scheduling</span><span class="tag">0/1 Knapsack</span></p>
-        <h4>Modelo mental de DP</h4>
-        <ol>
-          <li>Defina o subproblema com precisão.</li>
-          <li>Liste as escolhas possíveis na última decisão.</li>
-          <li>Escreva a recorrência.</li>
-          <li>Defina casos base e ordem de preenchimento.</li>
-          <li>Calcule a resposta e o custo total.</li>
-        </ol>
-        <h4>Recorrências essenciais</h4>
-        <p class="formula"><strong>Intervalos com pesos:</strong> OPT(j)=max{v_j+OPT(p(j)), OPT(j-1)}</p>
-        <p class="formula"><strong>Mochila 0/1:</strong> se w_i≤c, OPT(i,c)=max{OPT(i-1,c), v_i+OPT(i-1,c-w_i)}.</p>
-        <h4>Prática sugerida</h4>
-        <p>Construa tabelas pequenas à mão. Depois escreva a prova de corretude a partir da dicotomia “a solução ótima usa ou não usa o último item/tarefa”.</p>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 10 — 06 e 08/10 — Pseudo-polinomialidade, NP-dificuldade e Mínimos Quadrados Segmentados</summary>
-      <div class="content">
-        <p><span class="tag">Pseudo-polinomial</span><span class="tag">Weak/Strong NP-hard</span><span class="tag">Segmented Least Squares</span></p>
-        <h4>Domínio esperado</h4>
-        <ul>
-          <li>Entender por que <span class="formula">O(nW)</span> para Mochila não é polinomial no tamanho da entrada quando <span class="formula">W</span> é representado em binário.</li>
-          <li>Distinguir algoritmo polinomial de algoritmo pseudo-polinomial.</li>
-          <li>Entender a diferença conceitual entre NP-dificuldade fraca e forte.</li>
-          <li>Em Mínimos Quadrados Segmentados, reconhecer a escolha do último segmento e o custo de segmentação como base da recorrência.</li>
-        </ul>
-        <div class="note"><strong>Complemento do relatório:</strong> o guia também discute reduções polinomiais, P/NP/co-NP e NP-completude. Esses tópicos não aparecem explicitamente no cronograma 2026/2 fornecido; use-os como aprofundamento e confirme a cobrança na turma.</div>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 11 — 13 e 15/10 — Alinhamento de Sequências e prática de Programação Dinâmica</summary>
-      <div class="content">
-        <p><span class="tag">Sequence Alignment</span><span class="tag">Gaps</span><span class="tag">Mismatch</span><span class="tag">Aula prática 2</span></p>
-        <h4>Recorrência central</h4>
-        <p class="formula">M(i,j)=min{M(i-1,j-1)+α(x_i,y_j), M(i-1,j)+δ, M(i,j-1)+δ}</p>
-        <h4>Domínio esperado</h4>
-        <ul>
-          <li>Saber interpretar cada termo: alinhar dois símbolos, inserir gap em uma sequência ou inserir gap na outra.</li>
-          <li>Preencher corretamente casos base da primeira linha e primeira coluna.</li>
-          <li>Analisar o custo <span class="formula">O(mn)</span> de tempo e espaço na versão clássica.</li>
-          <li>Entender por que, quando o custo de mismatch é pelo menos o custo de dois gaps, existe uma solução ótima sem mismatches.</li>
-        </ul>
-        <div class="note"><strong>Aprofundamento do relatório:</strong> Hirschberg reduz o espaço usado para reconstruir um alinhamento. Estude a ideia de vetores de fronteira e divisão recursiva se esse conteúdo for incluído pelo professor.</div>
-      </div>
-    </details>
-
-    <div class="warning"><strong>Semana de 20–22/10:</strong> não há encontros listados no cronograma fornecido. Use o intervalo para revisão acumulada de Programação Dinâmica e para fechar pendências antes de caminhos mínimos.</div>
-
-    <details class="week">
-      <summary>Semana 12 — 27 e 29/10 — Bellman–Ford e Floyd–Warshall</summary>
-      <div class="content">
-        <p><span class="tag">Caminhos mínimos</span><span class="tag">Pesos negativos</span><span class="tag">APSP</span></p>
-        <h4>Bellman–Ford como DP</h4>
-        <p>Use a convenção da disciplina com clareza. Uma forma compatível com as provas é definir <span class="formula">OPT(i,v)</span> como o menor custo de um caminho de <span class="formula">v</span> ao destino usando no máximo <span class="formula">i</span> arestas:</p>
-        <p class="formula">OPT(i,v)=min{OPT(i-1,v), min_(v,w) [c(v,w)+OPT(i-1,w)]}.</p>
-        <ul>
-          <li>Entenda por que permitir mais arestas pode revelar uma melhoria mesmo depois de uma iteração sem mudança em um vértice específico.</li>
-          <li>Saiba distinguir a condição correta para detectar ciclo negativo da simples descoberta tardia de um caminho simples melhor.</li>
-        </ul>
-        <h4>Floyd–Warshall</h4>
-        <p class="formula">D^(k)[i,j]=min{D^(k-1)[i,j], D^(k-1)[i,k]+D^(k-1)[k,j]}.</p>
-        <p>O significado de <span class="formula">k</span> é essencial: só os vértices <span class="formula">1..k</span> podem aparecer como intermediários. Ao preencher matrizes à mão, não use valores “do futuro”.</p>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 13 — 03 e 05/11 — Laboratório e prática de Programação Dinâmica</summary>
-      <div class="content">
-        <p><span class="tag">Laboratório 3</span><span class="tag">Aula prática 3</span></p>
-        <h4>Objetivo</h4>
-        <p>Projetar a recorrência em problemas novos, em vez de reconhecer apenas fórmulas clássicas.</p>
-        <h4>Treino recomendado</h4>
-        <ul>
-          <li>Problemas com restrições locais em sequências: por exemplo, escolher elementos sem permitir três consecutivos.</li>
-          <li>Problemas de linhas de montagem: estado “menor custo para chegar à estação j terminando na linha i”.</li>
-          <li>Mochila irrestrita: perceber que, ao escolher o item i, ele continua disponível; o subproblema mantém o índice i.</li>
-          <li>Reconstrução da solução a partir da tabela, além do cálculo do valor ótimo.</li>
-        </ul>
-        <div class="note"><strong>Checklist de DP:</strong> estado bem definido, casos base, transição exaustiva, ordem válida, resposta final, tempo e espaço.</div>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 14 — 10 e 12/11 — Revisão e Prova 2</summary>
-      <div class="content">
-        <p><span class="tag">Revisão</span><span class="tag">Prova 2</span></p>
-        <h4>Prioridades</h4>
-        <ol>
-          <li>Modelar uma DP nova sem olhar fórmulas prontas.</li>
-          <li>Explicar pseudo-polinomialidade com tamanho da codificação em bits.</li>
-          <li>Preencher pelo menos uma tabela de alinhamento e uma sequência de matrizes de Floyd–Warshall.</li>
-          <li>Revisar Bellman–Ford, incluindo interpretação do número de arestas e ciclo negativo.</li>
-        </ol>
-        <h4>Simulado</h4>
-        <p>Reserve um bloco contínuo e misture V/F conceitual com uma questão de recorrência DP e uma questão de preenchimento de tabela. Corrija somente ao final.</p>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 15 — 17 e 19/11 — Análise amortizada, tabelas dinâmicas e Prova 3 prática</summary>
-      <div class="content">
-        <p><span class="tag">Amortizada</span><span class="tag">Tabelas dinâmicas</span><span class="tag">Prova prática</span></p>
-        <h4>Domínio esperado</h4>
-        <ul>
-          <li>Distinguir <strong>custo amortizado</strong> de caso médio probabilístico. A análise amortizada fornece garantia sobre uma sequência de operações, sem assumir distribuição de probabilidade.</li>
-          <li>Entender por que uma inserção que redimensiona a tabela pode custar <span class="formula">Θ(n)</span>, enquanto a sequência de muitas inserções ainda tem custo amortizado constante por operação.</li>
-          <li>Conhecer os três estilos clássicos: método agregado, método contábil e método do potencial.</li>
-          <li>No método do potencial, interpretar a variação de potencial como crédito armazenado para pagar operações futuras caras.</li>
-        </ul>
-        <h4>Preparação prática</h4>
-        <p>Implemente uma tabela dinâmica simples e registre o custo real de cada inserção. Depois compare o total com o número de operações. Essa observação torna a prova amortizada muito mais intuitiva.</p>
-      </div>
-    </details>
-
-    <details class="week">
-      <summary>Semana 16 — 24 e 26/11 — Recuperação e Descoberta de Algoritmos com IA</summary>
-      <div class="content">
-        <p><span class="tag">Recuperação</span><span class="tag">IA</span><span class="tag">Fechamento</span></p>
-        <h4>Se houver recuperação</h4>
-        <p>Faça revisão por erros, não por ordem do livro. Classifique cada erro anterior em: definição, modelagem, prova de corretude, cálculo de complexidade ou execução manual de tabela.</p>
-        <h4>Descoberta de algoritmos com IA</h4>
-        <p>Use a aula para refletir sobre o papel da IA como ferramenta de exploração, validação e geração de hipóteses — sempre separando sugestão automática de demonstração formal. Em contexto avaliativo, siga as regras específicas definidas pelo professor.</p>
-        <h4>Fechamento do semestre</h4>
-        <p>Produza uma folha final com “quando usar cada paradigma”, quais invariantes/provas são típicos e quais sinais no enunciado sugerem busca binária, divisão e conquista, programação dinâmica ou análise amortizada.</p>
-      </div>
-    </details>
-  </section>
-
-  <section id="formulas">
-    <h2>Referência rápida</h2>
-    <div class="grid">
-      <article class="card"><h3>Método Mestre</h3><p class="formula">T(n)=aT(n/b)+Θ(n^d)</p><p>Compare <span class="formula">a</span> com <span class="formula">b^d</span>: folhas dominam se <span class="formula">a&gt;b^d</span>; equilíbrio se <span class="formula">a=b^d</span>; raiz domina se <span class="formula">a&lt;b^d</span>, respeitando as condições do teorema.</p></article>
-      <article class="card"><h3>Intervalos com pesos</h3><p class="formula">OPT(j)=max{v_j+OPT(p(j)), OPT(j-1)}</p><p><span class="formula">p(j)</span> é a última tarefa compatível anterior a <span class="formula">j</span>.</p></article>
-      <article class="card"><h3>Mochila 0/1</h3><p class="formula">OPT(i,c)=max{OPT(i-1,c), v_i+OPT(i-1,c-w_i)}</p><p>O segundo caso só existe quando o item cabe.</p></article>
-      <article class="card"><h3>Alinhamento</h3><p class="formula">M(i,j)=min{diag+α, cima+δ, esquerda+δ}</p><p>Interprete cada transição; não memorize apenas a forma.</p></article>
-      <article class="card"><h3>Floyd–Warshall</h3><p class="formula">D^k[i,j]=min(D^(k-1)[i,j], D^(k-1)[i,k]+D^(k-1)[k,j])</p><p>A etapa <span class="formula">k</span> libera o vértice <span class="formula">k</span> como intermediário.</p></article>
-      <article class="card"><h3>Divisão e conquista</h3><p class="formula">T(n)=aT(n/b)+f(n)</p><p>Sempre identifique: divisão, chamadas recursivas, combinação e caso base.</p></article>
-    </div>
-  </section>
-
-  <section id="provas">
-    <h2>Estratégia para exercícios e provas</h2>
-    <div class="grid">
-      <article class="card">
-        <h3>Questões V/F</h3>
-        <ul>
-          <li>Procure primeiro um contraexemplo pequeno.</li>
-          <li>Se a afirmação for assintótica, volte à definição.</li>
-          <li>Em recorrências, faça a comparação algébrica antes de nomear o caso do Mestre.</li>
-          <li>Não generalize regras de pontuação de provas antigas para o semestre atual.</li>
-        </ul>
-      </article>
-      <article class="card">
-        <h3>Questões de projeto</h3>
-        <ol>
-          <li>Declare a ideia central em uma frase.</li>
-          <li>Escreva pseudocódigo apenas no nível necessário.</li>
-          <li>Prove a decisão de descarte/combinação/recorrência.</li>
-          <li>Explique o custo a partir das operações realizadas.</li>
-        </ol>
-      </article>
-      <article class="card">
-        <h3>Programação Dinâmica</h3>
-        <ol>
-          <li>Defina o significado exato de cada célula.</li>
-          <li>Liste casos mutuamente exaustivos.</li>
-          <li>Mostre que cada dependência já foi calculada.</li>
-          <li>Conte número de estados × custo por transição.</li>
-        </ol>
-      </article>
-    </div>
-
-    <h3>Erros que valem uma revisão imediata</h3>
-    <ul>
-      <li>Aplicar Método Mestre a uma recorrência que não tem a forma exigida.</li>
-      <li>Confundir número de nós por nível com custo total do nível.</li>
-      <li>Dizer que Strassen faz 6 ou 8 multiplicações recursivas; são 7.</li>
-      <li>Dizer que Karatsuba faz 4 multiplicações recursivas; são 3.</li>
-      <li>Esquecer que <span class="formula">O(nW)</span> pode ser pseudo-polinomial.</li>
-      <li>Na mochila irrestrita, avançar para <span class="formula">i-1</span> depois de escolher uma cópia do item.</li>
-      <li>No Floyd–Warshall, usar um caminho que depende de um intermediário ainda não liberado.</li>
-      <li>Confundir análise amortizada com análise média probabilística.</li>
-      <li>Em reduções, inverter a direção: para resolver X usando um solucionador de Y, é necessário construir <span class="formula">X ≤p Y</span>.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Checklist final de domínio</h2>
-    <ul class="checklist">
-      <li><input type="checkbox">Consigo justificar relações O, Ω e Θ sem depender apenas de gráficos.</li>
-      <li><input type="checkbox">Consigo resolver e explicar uma árvore de recursão completa.</li>
-      <li><input type="checkbox">Consigo aplicar e também reconhecer quando não aplicar o Método Mestre.</li>
-      <li><input type="checkbox">Consigo projetar uma variação de busca binária e provar o descarte de metade da entrada.</li>
-      <li><input type="checkbox">Consigo explicar o combine do Par Mais Próximo e de Pontos Máximos.</li>
-      <li><input type="checkbox">Consigo modelar uma DP nova a partir do significado do estado.</li>
-      <li><input type="checkbox">Consigo preencher manualmente alinhamento e Floyd–Warshall.</li>
-      <li><input type="checkbox">Consigo explicar pseudo-polinomialidade em termos do tamanho da codificação.</li>
-      <li><input type="checkbox">Consigo diferenciar Bellman–Ford, Floyd–Warshall e BFS pelo tipo de problema que resolvem.</li>
-      <li><input type="checkbox">Consigo demonstrar por que uma sequência de inserções em tabela dinâmica tem custo amortizado baixo.</li>
-    </ul>
-  </section>
-</main>
-<footer>
-  <div class="wrap">
-    <p>Guia de apoio ao estudo. Síntese derivada dos materiais do projeto INF05028, com organização temporal baseada no cronograma de 2026/2. Para regras de avaliação, prazos e permissões de uso de materiais, prevalecem sempre as orientações oficiais da disciplina.</p>
-  </div>
-</footer>
+  <script src="src/data.js"></script>
+  <script src="src/app.js"></script>
 </body>
 </html>
