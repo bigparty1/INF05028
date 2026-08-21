@@ -3,16 +3,21 @@
 
   const DATA = window.STUDY_DATA;
   const EXAMS = window.EXAM_DATA || [];
+  const MARKUP = window.MathMarkup;
   const CORE_KEY = "inf05028.study.platform.v2";
   const AUX_KEY = "inf05028.study.platform.enhancements.v1";
-  const AUX_DEFAULT = { checklistNotes: {}, exerciseNotes: {} };
+  const AUX_DEFAULT = { checklistNotes: {}, exerciseNotes: {}, examSolved: {} };
+
   let exerciseSearch = "";
-  let renderTimer = null;
+  let mathQueue = Promise.resolve();
+  let mathRetryTimer = null;
+  let coreCache = readJson(CORE_KEY, {});
+  let auxCache = normalizeAux(readJson(AUX_KEY, AUX_DEFAULT));
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const clone = value => JSON.parse(JSON.stringify(value));
 
-  function clone(value) { return JSON.parse(JSON.stringify(value)); }
   function esc(value) {
     return String(value ?? "")
       .replaceAll("&", "&amp;")
@@ -24,29 +29,40 @@
 
   function readJson(key, fallback) {
     try {
-      const value = JSON.parse(localStorage.getItem(key));
-      return value && typeof value === "object" ? value : clone(fallback);
-    } catch (_) { return clone(fallback); }
+      const parsed = JSON.parse(localStorage.getItem(key));
+      return parsed && typeof parsed === "object" ? parsed : clone(fallback);
+    } catch (_) {
+      return clone(fallback);
+    }
   }
 
-  function readCore() {
-    const state = readJson(CORE_KEY, {});
-    state.exercises = state.exercises || {};
-    return state;
+  function normalizeAux(value) {
+    const out = { ...clone(AUX_DEFAULT), ...(value || {}) };
+    out.checklistNotes = out.checklistNotes || {};
+    out.exerciseNotes = out.exerciseNotes || {};
+    out.examSolved = out.examSolved || {};
+    return out;
   }
 
-  function writeCore(state) { localStorage.setItem(CORE_KEY, JSON.stringify(state)); }
-
-  function readAux() {
-    const state = readJson(AUX_KEY, AUX_DEFAULT);
-    state.checklistNotes = state.checklistNotes || {};
-    state.exerciseNotes = state.exerciseNotes || {};
-    return state;
+  function refreshCore() {
+    coreCache = readJson(CORE_KEY, {});
+    coreCache.exercises = coreCache.exercises || {};
+    Object.assign(coreCache.exercises, auxCache.examSolved || {});
+    return coreCache;
   }
 
-  function writeAux(state) { localStorage.setItem(AUX_KEY, JSON.stringify(state)); }
+  function saveCore() {
+    coreCache.exercises = coreCache.exercises || {};
+    localStorage.setItem(CORE_KEY, JSON.stringify(coreCache));
+  }
 
-  function isExercisesView() { return $("#view-exercises")?.classList.contains("is-active"); }
+  function saveAux() {
+    localStorage.setItem(AUX_KEY, JSON.stringify(auxCache));
+  }
+
+  function isExercisesView() {
+    return $("#view-exercises")?.classList.contains("is-active");
+  }
 
   function showExercisesView() {
     $$('[data-view-panel]').forEach(panel => panel.classList.toggle("is-active", panel.dataset.viewPanel === "exercises"));
@@ -80,37 +96,47 @@
     })));
   }
 
-  function allExerciseRefs() { return [...weeklyRefs(), ...examRefs()]; }
+  function allExerciseRefs() {
+    return [...weeklyRefs(), ...examRefs()];
+  }
 
-  function isSolved(id) { return Boolean(readCore().exercises?.[id]); }
+  function isSolved(id) {
+    return Boolean(coreCache.exercises?.[id] || auxCache.examSolved?.[id]);
+  }
 
   function setSolved(id, checked) {
-    const weekly = $(`#view-weeks [data-exercise-id="${CSS.escape(id)}"]`);
-    if (weekly) {
-      weekly.checked = checked;
-      weekly.dispatchEvent(new Event("change", { bubbles: true }));
+    const weeklyInput = $(`#view-weeks [data-exercise-id="${CSS.escape(id)}"]`);
+    if (weeklyInput) {
+      weeklyInput.checked = checked;
+      weeklyInput.dispatchEvent(new Event("change", { bubbles: true }));
+      refreshCore();
     } else {
-      const core = readCore();
-      core.exercises[id] = checked;
-      writeCore(core);
+      coreCache.exercises = coreCache.exercises || {};
+      coreCache.exercises[id] = checked;
+      if (id.startsWith("exam-")) auxCache.examSolved[id] = checked;
+      saveCore();
+      saveAux();
     }
     $$(`[data-global-exercise-id="${CSS.escape(id)}"]`).forEach(input => input.checked = checked);
   }
 
-  function noteForExercise(id) { return readAux().exerciseNotes[id] || ""; }
-  function noteForChecklist(id) { return readAux().checklistNotes[id] || ""; }
+  function noteForExercise(id) {
+    return auxCache.exerciseNotes[id] || "";
+  }
+
+  function noteForChecklist(id) {
+    return auxCache.checklistNotes[id] || "";
+  }
 
   function setExerciseNote(id, value) {
-    const aux = readAux();
-    aux.exerciseNotes[id] = value;
-    writeAux(aux);
+    auxCache.exerciseNotes[id] = value;
+    saveAux();
     updateNoteIndicators(id, value, "exercise");
   }
 
   function setChecklistNote(id, value) {
-    const aux = readAux();
-    aux.checklistNotes[id] = value;
-    writeAux(aux);
+    auxCache.checklistNotes[id] = value;
+    saveAux();
     updateNoteIndicators(id, value, "checklist");
   }
 
@@ -118,7 +144,7 @@
     const selector = type === "exercise"
       ? `[data-exercise-note-indicator="${CSS.escape(id)}"]`
       : `[data-check-note-indicator="${CSS.escape(id)}"]`;
-    $$(selector).forEach(el => el.hidden = !value.trim());
+    $$(selector).forEach(el => { el.hidden = !value.trim(); });
   }
 
   function renderExerciseCard(exercise, number, context) {
@@ -158,13 +184,16 @@
   function renderExercises() {
     const root = $("#exercises-root");
     if (!root) return;
+    refreshCore();
     populateExamFilter();
+
     const source = $("#exercise-source-filter")?.value || "all";
     const status = $("#exercise-status-filter")?.value || "all";
     const examId = $("#exercise-exam-filter")?.value || "all";
     const q = exerciseSearch.trim().toLocaleLowerCase("pt-BR");
+    const all = allExerciseRefs();
 
-    let refs = allExerciseRefs().filter(ref => {
+    const refs = all.filter(ref => {
       if (source === "weekly" && ref.kind !== "weekly") return false;
       if (source === "exams" && ref.kind !== "exam") return false;
       if (examId !== "all" && (ref.kind !== "exam" || ref.exam.id !== examId)) return false;
@@ -178,7 +207,6 @@
       return true;
     });
 
-    const all = allExerciseRefs();
     const solvedTotal = all.filter(ref => isSolved(ref.exercise.id)).length;
     const notesTotal = all.filter(ref => noteForExercise(ref.exercise.id).trim()).length;
     const groups = new Map();
@@ -200,7 +228,8 @@
         return `<section class="exercise-group"><div class="exercise-group-heading"><div><h2 style="margin:0">${esc(ref.groupLabel)}</h2>${fileMeta}</div><span class="badge">${group.items.length} questão(ões)</span></div><div class="exercise-list">${group.items.map((item, idx) => renderExerciseCard(item.exercise, idx + 1, item)).join("")}</div></section>`;
       }).join("") : `<div class="empty-state"><h2>Nenhum exercício encontrado</h2><p>Ajuste os filtros ou a busca.</p></div>`}
     `;
-    typeset(root);
+
+    observeExerciseMath(root);
   }
 
   function enhanceWeekHeaders(root = document) {
@@ -222,23 +251,31 @@
       const id = checkbox.dataset.checkId;
       const text = label.querySelector("span")?.textContent || label.textContent.trim();
       const note = noteForChecklist(id);
+
       const entry = document.createElement("div");
       entry.className = `checklist-entry${note ? " is-open" : ""}`;
       entry.dataset.checklistEntry = id;
+
       const main = document.createElement("div");
       main.className = "checklist-main";
       main.dataset.checklistToggle = id;
       main.setAttribute("role", "button");
       main.setAttribute("tabindex", "0");
       main.setAttribute("aria-expanded", String(Boolean(note)));
+
+      const left = document.createElement("div");
+      left.className = "checklist-label";
       checkbox.setAttribute("aria-label", text);
       const textSpan = document.createElement("span");
       textSpan.className = "checklist-text";
       textSpan.textContent = text;
+      left.append(checkbox, textSpan);
+
       const icon = document.createElement("span");
       icon.className = "checklist-expand-icon";
       icon.innerHTML = `⌄ <span class="note-indicator" data-check-note-indicator="${esc(id)}" ${note ? "" : "hidden"}></span>`;
-      main.append(checkbox, textSpan, icon);
+      main.append(left, icon);
+
       const noteWrap = document.createElement("div");
       noteWrap.className = "checklist-note";
       const textarea = document.createElement("textarea");
@@ -246,6 +283,7 @@
       textarea.placeholder = "Adicione observações, dúvidas ou detalhes deste item…";
       textarea.value = note;
       noteWrap.append(textarea);
+
       entry.append(main, noteWrap);
       label.replaceWith(entry);
     });
@@ -262,51 +300,10 @@
     });
   }
 
-  const supers = { "⁰":"0","¹":"1","²":"2","³":"3","⁴":"4","⁵":"5","⁶":"6","⁷":"7","⁸":"8","⁹":"9","ⁿ":"n" };
-  const subs = { "₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9" };
-  function replaceRuns(text, map, marker) {
-    const chars = Object.keys(map).join("");
-    return text.replace(new RegExp(`[${chars}]+`, "g"), run => `${marker}{${Array.from(run).map(c => map[c]).join("")}}`);
-  }
-  function toLatex(value) {
-    let s = String(value || "");
-    s = replaceRuns(s, supers, "^");
-    s = replaceRuns(s, subs, "_");
-    return s
-      .replaceAll("Θ", "\\Theta ")
-      .replaceAll("Ω", "\\Omega ")
-      .replaceAll("ω", "\\omega ")
-      .replaceAll("α", "\\alpha ")
-      .replaceAll("δ", "\\delta ")
-      .replaceAll("π", "\\pi ")
-      .replaceAll("∞", "\\infty ")
-      .replaceAll("≤", "\\le ")
-      .replaceAll("≥", "\\ge ")
-      .replaceAll("≠", "\\ne ")
-      .replaceAll("∈", "\\in ")
-      .replaceAll("∉", "\\notin ")
-      .replaceAll("→", "\\to ")
-      .replaceAll("·", "\\cdot ")
-      .replaceAll("≈", "\\approx ")
-      .replace(/√\s*\(?([^,.;)]+)/g, "\\sqrt{$1}");
-  }
-
-  function enhanceMath(root = document) {
-    $$(".formula-block:not([data-math-enhanced])", root).forEach(block => {
-      const raw = block.textContent.trim();
-      block.dataset.mathEnhanced = "1";
-      block.textContent = `\\[${toLatex(raw)}\\]`;
-    });
-    typeset(root);
-  }
-
-  function typeset(root = document) {
-    if (window.MathJax?.typesetPromise) {
-      window.MathJax.typesetPromise([root]).catch(() => {});
-    } else {
-      clearTimeout(renderTimer);
-      renderTimer = setTimeout(() => window.MathJax?.typesetPromise?.([root]).catch(() => {}), 300);
-    }
+  function enhanceWeeksStructure() {
+    enhanceWeekHeaders();
+    enhanceChecklists();
+    enhanceWeeklyExerciseNotes();
   }
 
   function syncHeaderState(card) {
@@ -319,7 +316,183 @@
     const open = !entry.classList.contains("is-open");
     entry.classList.toggle("is-open", open);
     entry.querySelector(".checklist-main")?.setAttribute("aria-expanded", String(open));
+    const icon = entry.querySelector(".checklist-expand-icon");
+    if (icon?.firstChild) icon.firstChild.nodeValue = open ? "⌃ " : "⌄ ";
     if (open) entry.querySelector("textarea")?.focus({ preventScroll: true });
+  }
+
+  const supers = { "⁰":"0","¹":"1","²":"2","³":"3","⁴":"4","⁵":"5","⁶":"6","⁷":"7","⁸":"8","⁹":"9","ⁿ":"n" };
+  const subs = { "₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9" };
+
+  function replaceRuns(text, map, marker) {
+    const chars = Object.keys(map).join("");
+    return text.replace(new RegExp(`[${chars}]+`, "g"), run => `${marker}{${Array.from(run).map(c => map[c]).join("")}}`);
+  }
+
+  function toLatex(value) {
+    let s = String(value || "").trim();
+    if (!s) return s;
+    if (/\\(?:Theta|Omega|omega|alpha|delta|log|frac|sqrt|le|ge|subset)/.test(s)) return s;
+
+    s = s
+      .replace(/≤p/g, "\\le_p ")
+      .replace(/log₂/g, "\\log_{2}")
+      .replace(/log₁₀/g, "\\log_{10}")
+      .replace(/log_([0-9]+)/g, "\\log_{$1}")
+      .replace(/\blog\b/g, "\\log")
+      .replaceAll("Θ", "\\Theta ")
+      .replaceAll("Ω", "\\Omega ")
+      .replaceAll("ω", "\\omega ")
+      .replaceAll("α", "\\alpha ")
+      .replaceAll("δ", "\\delta ")
+      .replaceAll("π", "\\pi ")
+      .replaceAll("∞", "\\infty ")
+      .replaceAll("≤", "\\le ")
+      .replaceAll("≥", "\\ge ")
+      .replaceAll("≠", "\\ne ")
+      .replaceAll("⊆", "\\subseteq ")
+      .replaceAll("∈", "\\in ")
+      .replaceAll("∉", "\\notin ")
+      .replaceAll("→", "\\to ")
+      .replaceAll("·", "\\cdot ")
+      .replaceAll("≈", "\\approx ");
+
+    s = replaceRuns(s, supers, "^");
+    s = replaceRuns(s, subs, "_");
+
+    s = s
+      .replace(/\^\((\\log_\{[^}]+\}\s*[^)]+)\)/g, "^{$1}")
+      .replace(/\^(\\log_\{[^}]+\}\s*[A-Za-z0-9]+)/g, "^{$1}")
+      .replace(/\^([0-9]+(?:[.,][0-9]+)?)/g, "^{$1}")
+      .replace(/√\s*\(?([A-Za-z0-9.+\-]+)\)?/g, "\\sqrt{$1}");
+
+    return s;
+  }
+
+  function parseMarkersInTextNode(node) {
+    const original = node.nodeValue || "";
+    let text = original;
+    if (!text.includes("[[m:") && !text.includes("[[M:") && MARKUP?.tagText) {
+      text = MARKUP.tagText(text);
+    }
+    if (!text.includes("[[m:") && !text.includes("[[M:")) return 0;
+
+    const re = /\[\[(m|M):([\s\S]*?)\]\]/g;
+    const fragment = document.createDocumentFragment();
+    let cursor = 0;
+    let count = 0;
+    let match;
+    while ((match = re.exec(text))) {
+      if (match.index > cursor) fragment.append(document.createTextNode(text.slice(cursor, match.index)));
+      const span = document.createElement("span");
+      span.className = match[1] === "M" ? "math-display" : "math-inline";
+      span.dataset.mathSource = match[2];
+      const latex = toLatex(match[2]);
+      span.textContent = match[1] === "M" ? `\\[${latex}\\]` : `\\(${latex}\\)`;
+      fragment.append(span);
+      cursor = match.index + match[0].length;
+      count += 1;
+    }
+    if (cursor < text.length) fragment.append(document.createTextNode(text.slice(cursor)));
+    node.replaceWith(fragment);
+    return count;
+  }
+
+  function prepareMath(root) {
+    if (!root || !document.contains(root)) return 0;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+        const parent = node.parentElement;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        if (parent.closest("script,style,textarea,pre,code,mjx-container,[data-math-source],[data-no-math]")) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    let count = 0;
+    nodes.forEach(node => { count += parseMarkersInTextNode(node); });
+    return count;
+  }
+
+  function mathJaxReady() {
+    if (window.MathJax?.typesetPromise) return Promise.resolve(true);
+    if (window.MathJax?.startup?.promise) {
+      return window.MathJax.startup.promise.then(() => Boolean(window.MathJax?.typesetPromise)).catch(() => false);
+    }
+    return new Promise(resolve => {
+      clearTimeout(mathRetryTimer);
+      const started = performance.now();
+      const wait = () => {
+        if (window.MathJax?.typesetPromise) return resolve(true);
+        if (performance.now() - started > 5000) return resolve(false);
+        mathRetryTimer = setTimeout(wait, 100);
+      };
+      wait();
+    });
+  }
+
+  function typesetPrepared(root, count) {
+    if (!count || !root || !document.contains(root)) return;
+    mathQueue = mathQueue
+      .catch(() => {})
+      .then(async () => {
+        const ready = await mathJaxReady();
+        if (!ready || !document.contains(root)) return;
+        await window.MathJax.typesetPromise([root]);
+      })
+      .catch(error => console.warn("Falha ao renderizar fórmula.", error));
+  }
+
+  function renderMath(root) {
+    const count = prepareMath(root);
+    typesetPrepared(root, count);
+  }
+
+  let exerciseMathObserver = null;
+  function getExerciseMathObserver() {
+    if (exerciseMathObserver || !("IntersectionObserver" in window)) return exerciseMathObserver;
+    exerciseMathObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        exerciseMathObserver.unobserve(entry.target);
+        renderMath(entry.target);
+      }
+    }, { rootMargin: "500px 0px" });
+    return exerciseMathObserver;
+  }
+
+  function observeExerciseMath(root) {
+    const observer = getExerciseMathObserver();
+    const cards = $$(".exercise", root);
+    if (!observer) {
+      cards.forEach(renderMath);
+      return;
+    }
+    cards.forEach(card => observer.observe(card));
+  }
+
+  function renderVisibleViewMath() {
+    const active = $('.view.is-active');
+    if (!active) return;
+    if (active.dataset.viewPanel === "weeks") {
+      $$(".week-card.is-open", active).forEach(renderMath);
+      return;
+    }
+    if (active.dataset.viewPanel === "exercises") {
+      observeExerciseMath(active);
+      return;
+    }
+    renderMath(active);
+  }
+
+  function afterBaseRender(options = {}) {
+    requestAnimationFrame(() => {
+      refreshCore();
+      enhanceWeeksStructure();
+      if (options.math !== false) renderVisibleViewMath();
+    });
   }
 
   function installInteractions() {
@@ -335,7 +508,10 @@
     });
 
     $("#global-search")?.addEventListener("input", event => {
-      if (!isExercisesView()) return;
+      if (!isExercisesView()) {
+        afterBaseRender({ math: false });
+        return;
+      }
       event.stopImmediatePropagation();
       exerciseSearch = event.target.value;
       renderExercises();
@@ -345,11 +521,31 @@
       const header = event.target.closest(".week-summary[data-week-header]");
       if (header && !event.target.closest("button,select,input,label,textarea,a,summary,details")) {
         header.querySelector("[data-toggle-week]")?.click();
-        requestAnimationFrame(() => syncHeaderState(header.closest(".week-card")));
+        requestAnimationFrame(() => {
+          const card = header.closest(".week-card");
+          syncHeaderState(card);
+          if (card?.classList.contains("is-open")) renderMath(card);
+        });
         return;
       }
+
+      const toggle = event.target.closest("[data-toggle-week]");
+      if (toggle) {
+        requestAnimationFrame(() => {
+          const card = toggle.closest(".week-card");
+          syncHeaderState(card);
+          if (card?.classList.contains("is-open")) renderMath(card);
+        });
+      }
+
       const checklistMain = event.target.closest("[data-checklist-toggle]");
-      if (checklistMain && !event.target.closest("input")) toggleChecklist(checklistMain.closest(".checklist-entry"));
+      if (checklistMain && !event.target.closest("input")) {
+        toggleChecklist(checklistMain.closest(".checklist-entry"));
+      }
+
+      if (event.target.closest(".nav-item:not([data-view='exercises']), [data-view-link], [data-jump-week], [data-bookmark-week], #expand-current-week, #next-review, #reveal-review, [data-review-result]")) {
+        afterBaseRender();
+      }
     });
 
     document.addEventListener("keydown", event => {
@@ -357,7 +553,11 @@
       if (header && (event.key === "Enter" || event.key === " ") && !event.target.closest("button,select,input,textarea,a")) {
         event.preventDefault();
         header.querySelector("[data-toggle-week]")?.click();
-        requestAnimationFrame(() => syncHeaderState(header.closest(".week-card")));
+        requestAnimationFrame(() => {
+          const card = header.closest(".week-card");
+          syncHeaderState(card);
+          if (card?.classList.contains("is-open")) renderMath(card);
+        });
       }
       const checklistMain = event.target.closest("[data-checklist-toggle]");
       if (checklistMain && (event.key === "Enter" || event.key === " ") && event.target === checklistMain) {
@@ -375,23 +575,36 @@
       if (event.target.matches("[data-global-exercise-id]")) {
         setSolved(event.target.dataset.globalExerciseId, event.target.checked);
         renderExercises();
-      } else if (event.target.matches("#view-weeks [data-exercise-id]")) {
-        $$(`[data-global-exercise-id="${CSS.escape(event.target.dataset.exerciseId)}"]`).forEach(input => input.checked = event.target.checked);
-        if (isExercisesView()) renderExercises();
+        return;
       }
+      if (event.target.matches("#view-weeks [data-exercise-id]")) {
+        refreshCore();
+        $$(`[data-global-exercise-id="${CSS.escape(event.target.dataset.exerciseId)}"]`).forEach(input => { input.checked = event.target.checked; });
+      }
+      if (event.target.matches("#week-filter, [data-week-status]")) afterBaseRender({ math: false });
     });
 
     const exportButton = $("#export-data");
     exportButton?.addEventListener("click", event => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      const payload = { app: "INF05028 Study Platform", version: "2.1-enhanced", exportedAt: new Date().toISOString(), state: readCore(), enhancements: readAux() };
+      refreshCore();
+      const payload = {
+        app: "INF05028 Study Platform",
+        version: "2.2-math-performance",
+        exportedAt: new Date().toISOString(),
+        state: coreCache,
+        enhancements: auxCache
+      };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `inf05028-backup-${new Date().toISOString().slice(0,10)}.json`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
     }, true);
 
     const importInput = $("#import-data");
@@ -403,40 +616,31 @@
         const parsed = JSON.parse(await file.text());
         const core = parsed.state || parsed;
         if (!core || typeof core !== "object") throw new Error("Formato inválido");
-        writeCore(core);
-        if (parsed.enhancements && typeof parsed.enhancements === "object") writeAux({ ...clone(AUX_DEFAULT), ...parsed.enhancements });
+        localStorage.setItem(CORE_KEY, JSON.stringify(core));
+        if (parsed.enhancements && typeof parsed.enhancements === "object") {
+          localStorage.setItem(AUX_KEY, JSON.stringify(normalizeAux(parsed.enhancements)));
+        }
         location.reload();
-      } catch (_) { alert("Não foi possível importar este backup."); }
+      } catch (_) {
+        alert("Não foi possível importar este backup.");
+      }
     }, true);
-
-    $("#reset-data")?.addEventListener("click", () => localStorage.removeItem(AUX_KEY), true);
 
     window.addEventListener("hashchange", () => {
       if (location.hash === "#exercises") showExercisesView();
+      else afterBaseRender();
     });
-  }
-
-  function enhanceAll() {
-    enhanceWeekHeaders();
-    enhanceChecklists();
-    enhanceWeeklyExerciseNotes();
-    enhanceMath();
-  }
-
-  function observeRenders() {
-    const root = $("#app-main");
-    if (!root) return;
-    const observer = new MutationObserver(() => requestAnimationFrame(enhanceAll));
-    observer.observe(root, { childList: true, subtree: true });
   }
 
   function init() {
     populateExamFilter();
+    enhanceWeeksStructure();
     installInteractions();
-    enhanceAll();
-    observeRenders();
+
     if (location.hash === "#exercises") showExercisesView();
-    window.addEventListener("load", () => typeset(document));
+    else renderVisibleViewMath();
+
+    window.addEventListener("load", renderVisibleViewMath, { once: true });
   }
 
   init();
