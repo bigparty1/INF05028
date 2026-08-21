@@ -8,24 +8,26 @@
   const MARK_RE = /\[\[math(?::(block))?\]\]([\s\S]*?)\[\[\/math\]\]/g;
   const PARENS = String.raw`\((?:[^()]|\([^()]*\))*\)`;
   const BRACKETS = String.raw`\[[^\]]*\]`;
-  const SUBS = String.raw`[₀₁₂₃₄₅₆₇₈₉]+`;
+  const SUBS = String.raw`(?:[₀₁₂₃₄₅₆₇₈₉]+|_[A-Za-z0-9]+)`;
   const SUPS = String.raw`[⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]+`;
-  const ID = String.raw`(?<![\p{L}_])(?:OPT|PSPACE|co-NP|NP|deg|mid|key|log₁₀|log₂|log|max|min|NF|P1|P2|AP|AA|cvw|vj|ac|bd|ad|bc|T|M|D|F|S|A|f|g|h|n|a|b|c|d|i|j|k|m|r|x|y|p|q|W|V|E|L|H|P|X|Y|δ|αpq|α|ω)(?:${SUBS})?(?![\p{L}_])`;
+  const ID = String.raw`(?<![\p{L}_])(?:OPT|PSPACE|co-NP|NP|deg|mid|key|log₁₀|log₂|log|max|min|NF|P1|P2|AP|AA|cvw|vj|ac|bd|ad|bc|T|M|D|F|S|A|f|g|h|n|a|b|c|d|i|j|k|m|r|x|y|p|q|v|w|u|s|t|W|V|E|L|H|P|X|Y|δ|αpq|α|ω)(?:${SUBS})?(?![\p{L}_])`;
   const CALL = String.raw`${ID}(?:${PARENS}|${BRACKETS})?`;
   const BIG = String.raw`[OoΘΩω]${PARENS}`;
+  const TTERM = String.raw`(?<![\p{L}_])(?:[abcdn]|\d+)?T${PARENS}`;
   const POWER = String.raw`(?:${CALL}|\d+(?:[.,]\d+)?)\s*(?:\^${PARENS}|\^(?:${CALL}|\d+(?:[.,]\d+)?)|${SUPS})(?:${BRACKETS})?`;
   const NUMBER = String.raw`\d+(?:[.,]\d+)?`;
-  const ATOM = String.raw`(?:${BIG}|${POWER}|${CALL}|${NUMBER})`;
-  const ARITH = String.raw`(?:\+|−|-|\*|/|\^|·|\||\(|\)|\{|\}|${SUPS}|${SUBS})`;
+  const ATOM = String.raw`(?:${BIG}|${POWER}|${TTERM}|${CALL}|${NUMBER})`;
+  const ARITH = String.raw`(?:\+|−|-|\*|/|\^|·|\||∩|∪|,|\(|\)|\{|\}|${SUPS}|${SUBS})`;
   const EXPR = String.raw`(?:${ATOM}|${ARITH}|\s)+`;
+  const REL = String.raw`(?:=|≠|≤p|≤|≥|<|>|⊆|∈|∉)`;
 
   const PATTERNS = [
-    new RegExp(String.raw`${EXPR}(?:=|≤|≥|<|>)${EXPR}(?:=|≤|≥|<|>)${EXPR}`, "gu"),
-    new RegExp(String.raw`${EXPR}(?:=|≤|≥|<|>)${EXPR}`, "gu"),
+    new RegExp(String.raw`${EXPR}${REL}${EXPR}${REL}${EXPR}`, "gu"),
+    new RegExp(String.raw`${EXPR}${REL}${EXPR}`, "gu"),
     new RegExp(BIG, "gu"),
     new RegExp(POWER, "gu"),
-    /\blog(?:₂|₁₀|_[0-9]+)?\s*\(?[A-Za-z0-9!⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]+\)?/g,
-    /\b(?:P|NP|co-NP|PSPACE|X|Y)\s*(?:=|⊆|≤p)\s*(?:P|NP|co-NP|PSPACE|X|Y)\b/g,
+    /\blog(?:₂|₁₀|_[0-9A-Za-z]+)?\s*\(?[A-Za-z0-9!⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]+\)?/g,
+    /\b(?:P|NP|co-NP|PSPACE|X|Y)\s*(?:=|⊆|≤p|∈|∉)\s*(?:P|NP|co-NP|PSPACE|X|Y)\b/g,
     /\bn!/g
   ];
 
@@ -47,9 +49,10 @@
         const trailing = raw.match(/\s+$/)?.[0].length || 0;
         start += leading;
         end -= trailing;
+        while (end > start && text[end - 1] === ",") end -= 1;
         raw = text.slice(start, end);
 
-        if (!/[=≤≥<>^⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]|[OoΘΩω]\s*\(|\blog(?:₂|₁₀|_)/.test(raw)) continue;
+        if (!/[=≠≤≥<>⊆∈∉^⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]|[OoΘΩω]\s*\(|\blog(?:₂|₁₀|_)/.test(raw)) continue;
         const candidate = { start, end };
         if (!ranges.some(existing => overlaps(existing, candidate))) ranges.push(candidate);
         if (pattern.lastIndex === match.index) pattern.lastIndex += 1;
@@ -61,7 +64,7 @@
   function tagText(value) {
     const text = String(value ?? "");
     if (!text || text.includes("[[math")) return text;
-    if (!/[=≤≥<>^⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]|[OoΘΩω]\s*\(|log(?:₂|₁₀|_)/.test(text)) return text;
+    if (!/[=≠≤≥<>⊆∈∉^⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]|[OoΘΩω]\s*\(|log(?:₂|₁₀|_)/.test(text)) return text;
     const ranges = collectRanges(text);
     if (!ranges.length) return text;
     let out = "";
