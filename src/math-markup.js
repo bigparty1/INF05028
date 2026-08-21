@@ -61,6 +61,7 @@
   function tagText(value) {
     const text = String(value ?? "");
     if (!text || text.includes("[[m:") || text.includes("[[M:")) return text;
+    if (!/[=≤≥<>^⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]|[OoΘΩω]\s*\(|log(?:₂|₁₀|_)/.test(text)) return text;
     const ranges = collectRanges(text);
     if (!ranges.length) return text;
     let out = "";
