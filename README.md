@@ -34,6 +34,7 @@ A plataforma reúne:
 └── src/
     ├── data.js
     ├── app.js
+    ├── math-markup.js
     ├── enhancements.js
     ├── persistence-patch.js
     └── exams/
@@ -47,10 +48,26 @@ A plataforma reúne:
 
 - `src/data.js`: conteúdo didático, cronograma, dados do plano, exercícios semanais e cartões de revisão.
 - `src/app.js`: núcleo da aplicação, dashboard e estado original.
-- `src/enhancements.js`: banco unificado de exercícios, notas de checklist/exercício, expansão por cabeçalho e integração matemática.
+- `src/math-markup.js`: camada semântica que identifica fórmulas no conteúdo legado e as marca antes da renderização da interface.
+- `src/enhancements.js`: banco unificado de exercícios, notas de checklist/exercício, expansão por cabeçalho e renderização matemática lazy.
 - `src/persistence-patch.js`: preserva o status dos exercícios históricos e integra as novas informações à persistência.
 - `src/exams/*.js`: questões extraídas das provas históricas anexadas, separadas por avaliação.
 - `assets/styles.css`: interface responsiva, temas e layout de largura ampliada.
+
+## Convenção para fórmulas
+
+O conteúdo suporta uma marcação semântica explícita, útil para novos textos e para casos em que a detecção automática não é desejada:
+
+```text
+[[math]]f(n)=O(g(n))[[/math]]
+[[math:block]]T(n)=2T(n/2)+n[[/math]]
+```
+
+A primeira forma produz matemática inline; a segunda produz um bloco matemático. `math-markup.js` também migra automaticamente as expressões legadas mais comuns — recorrências, notação assintótica, potências, logaritmos, inequações, estados de programação dinâmica, relações entre classes de complexidade e expressões similares — para a mesma representação semântica.
+
+MathJax é configurado com `startup.typeset: false`. A aplicação só processa a visão atualmente visível, semanas abertas e exercícios próximos do viewport. Os exercícios usam `IntersectionObserver`, e as chamadas ao MathJax são serializadas. Não há `MutationObserver` reagindo às mutações produzidas pelo próprio MathJax.
+
+Essa arquitetura evita o ciclo de realimentação em que uma renderização matemática modificava o DOM, disparava uma nova observação e solicitava outra renderização. Além de eliminar o `STATUS_STACK_OVERFLOW`, reduz significativamente trabalho de CPU durante scroll e hover.
 
 ## Fontes usadas na síntese
 
