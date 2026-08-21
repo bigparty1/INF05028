@@ -5,7 +5,7 @@
   const EXAMS = window.EXAM_DATA || [];
   if (!DATA) return;
 
-  const MARK_RE = /\[\[(m|M):([\s\S]*?)\]\]/g;
+  const MARK_RE = /\[\[math(?::(block))?\]\]([\s\S]*?)\[\[\/math\]\]/g;
   const PARENS = String.raw`\((?:[^()]|\([^()]*\))*\)`;
   const BRACKETS = String.raw`\[[^\]]*\]`;
   const SUBS = String.raw`[₀₁₂₃₄₅₆₇₈₉]+`;
@@ -60,7 +60,7 @@
 
   function tagText(value) {
     const text = String(value ?? "");
-    if (!text || text.includes("[[m:") || text.includes("[[M:")) return text;
+    if (!text || text.includes("[[math")) return text;
     if (!/[=≤≥<>^⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ]|[OoΘΩω]\s*\(|log(?:₂|₁₀|_)/.test(text)) return text;
     const ranges = collectRanges(text);
     if (!ranges.length) return text;
@@ -69,7 +69,7 @@
     for (const range of ranges) {
       if (range.start < cursor) continue;
       out += text.slice(cursor, range.start);
-      out += `[[m:${text.slice(range.start, range.end)}]]`;
+      out += `[[math]]${text.slice(range.start, range.end)}[[/math]]`;
       cursor = range.end;
     }
     out += text.slice(cursor);
@@ -79,8 +79,8 @@
   function tagDisplay(value) {
     const text = String(value ?? "").trim();
     if (!text) return text;
-    if (/^\[\[M:[\s\S]*\]\]$/.test(text)) return text;
-    return `[[M:${text}]]`;
+    if (/^\[\[math:block\]\][\s\S]*\[\[\/math\]\]$/.test(text)) return text;
+    return `[[math:block]]${text}[[/math]]`;
   }
 
   function tagExercise(exercise) {
