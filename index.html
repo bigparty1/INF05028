@@ -14,9 +14,7 @@
         displayMath: [['\\[', '\\]'], ['$$', '$$']],
         processEscapes: true
       },
-      options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-      }
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
     };
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -27,16 +25,10 @@
   <header class="topbar">
     <div class="brand" aria-label="INF05028 Plataforma de Estudos">
       <span class="brand-mark">A²</span>
-      <div>
-        <strong>INF05028</strong>
-        <small>Projeto e Análise de Algoritmos II</small>
-      </div>
+      <div><strong>INF05028</strong><small>Projeto e Análise de Algoritmos II</small></div>
     </div>
     <div class="top-actions">
-      <label class="search-box" aria-label="Buscar na plataforma">
-        <span aria-hidden="true">⌕</span>
-        <input id="global-search" type="search" placeholder="Buscar tópico, fórmula ou exercício…" autocomplete="off">
-      </label>
+      <label class="search-box" aria-label="Buscar na plataforma"><span aria-hidden="true">⌕</span><input id="global-search" type="search" placeholder="Buscar tópico, fórmula ou exercício…" autocomplete="off"></label>
       <button id="theme-toggle" class="icon-button" type="button" title="Alternar tema" aria-label="Alternar tema">◐</button>
     </div>
   </header>
@@ -52,10 +44,7 @@
         <button class="nav-item" data-view="settings" type="button"><span>⚙</span> Configurações</button>
       </nav>
       <div class="sidebar-footer">
-        <div class="mini-progress" aria-label="Progresso de estudos">
-          <div class="row between"><span>Domínio</span><strong id="sidebar-progress-label">0%</strong></div>
-          <div class="progress-track"><div id="sidebar-progress-bar" class="progress-fill"></div></div>
-        </div>
+        <div class="mini-progress" aria-label="Progresso de estudos"><div class="row between"><span>Domínio</span><strong id="sidebar-progress-label">0%</strong></div><div class="progress-track"><div id="sidebar-progress-bar" class="progress-fill"></div></div></div>
         <small>Dados salvos apenas neste navegador.</small>
       </div>
     </aside>
@@ -65,19 +54,9 @@
 
       <section id="view-weeks" class="view" data-view-panel="weeks" aria-labelledby="weeks-title">
         <div class="page-heading">
-          <div>
-            <p class="eyebrow">Trilha definitiva · 2026/2</p>
-            <h1 id="weeks-title">Estudo semana a semana</h1>
-            <p>17 blocos de calendário reconciliam o cronograma 2026/2 com as 16 semanas acadêmicas do plano de referência; o intervalo de 20–22/10 aparece como bloco autônomo.</p>
-          </div>
+          <div><p class="eyebrow">Trilha definitiva · 2026/2</p><h1 id="weeks-title">Estudo semana a semana</h1><p>17 blocos de calendário reconciliam o cronograma 2026/2 com as 16 semanas acadêmicas do plano de referência; o intervalo de 20–22/10 aparece como bloco autônomo.</p></div>
           <div class="toolbar" role="group" aria-label="Filtros da trilha">
-            <select id="week-filter" aria-label="Filtrar semanas">
-              <option value="all">Todas</option>
-              <option value="current">Semana atual</option>
-              <option value="bookmarked">Favoritas</option>
-              <option value="pending">Pendentes</option>
-              <option value="mastered">Dominadas</option>
-            </select>
+            <select id="week-filter" aria-label="Filtrar semanas"><option value="all">Todas</option><option value="current">Semana atual</option><option value="bookmarked">Favoritas</option><option value="pending">Pendentes</option><option value="mastered">Dominadas</option></select>
             <button id="expand-current-week" class="button secondary" type="button">Ir para agora</button>
           </div>
         </div>
@@ -86,51 +65,34 @@
 
       <section id="view-exercises" class="view" data-view-panel="exercises" aria-labelledby="exercises-title">
         <div class="page-heading">
-          <div>
-            <p class="eyebrow">Banco integrado</p>
-            <h1 id="exercises-title">Exercícios</h1>
-            <p>Reúne, sem duplicar dados, os exercícios da trilha semanal e as questões das provas históricas anexadas.</p>
-          </div>
+          <div><p class="eyebrow">Banco integrado</p><h1 id="exercises-title">Exercícios</h1><p>Reúne, sem duplicar dados, os exercícios da trilha semanal e as questões das provas históricas anexadas.</p></div>
           <div class="toolbar exercise-toolbar" role="group" aria-label="Filtros de exercícios">
-            <select id="exercise-source-filter" aria-label="Origem dos exercícios">
-              <option value="all">Tudo</option>
-              <option value="weekly">Trilha semanal</option>
-              <option value="exams">Provas anteriores</option>
-            </select>
-            <select id="exercise-status-filter" aria-label="Status dos exercícios">
-              <option value="all">Todos os status</option>
-              <option value="pending">Pendentes</option>
-              <option value="solved">Resolvidos</option>
-            </select>
-            <select id="exercise-exam-filter" aria-label="Filtrar por prova">
-              <option value="all">Todas as provas</option>
-            </select>
+            <select id="exercise-source-filter" aria-label="Origem dos exercícios"><option value="all">Tudo</option><option value="weekly">Trilha semanal</option><option value="exams">Provas anteriores</option></select>
+            <select id="exercise-status-filter" aria-label="Status dos exercícios"><option value="all">Todos os status</option><option value="pending">Pendentes</option><option value="solved">Resolvidos</option></select>
+            <select id="exercise-exam-filter" aria-label="Filtrar por prova"><option value="all">Todas as provas</option></select>
           </div>
         </div>
         <div id="exercises-root"></div>
       </section>
 
-      <section id="view-review" class="view" data-view-panel="review" aria-labelledby="review-title">
-        <div class="page-heading"><div><p class="eyebrow">Recuperação ativa</p><h1 id="review-title">Revisão relâmpago</h1><p>Use cartões curtos para testar recuperação de memória antes de reler o material.</p></div></div>
-        <div id="review-root"></div>
-      </section>
+      <section id="view-review" class="view" data-view-panel="review" aria-labelledby="review-title"><div class="page-heading"><div><p class="eyebrow">Recuperação ativa</p><h1 id="review-title">Revisão relâmpago</h1><p>Use cartões curtos para testar recuperação de memória antes de reler o material.</p></div></div><div id="review-root"></div></section>
 
-      <section id="view-course" class="view" data-view-panel="course" aria-labelledby="course-title">
-        <div class="page-heading"><div><p class="eyebrow">Plano, cronograma e guia cruzados</p><h1 id="course-title">Informações da disciplina</h1><p>Regras, metodologia, bibliografia e rastreabilidade das fontes usadas pela plataforma.</p></div></div>
-        <div id="course-root"></div>
-      </section>
+      <section id="view-course" class="view" data-view-panel="course" aria-labelledby="course-title"><div class="page-heading"><div><p class="eyebrow">Plano, cronograma e guia cruzados</p><h1 id="course-title">Informações da disciplina</h1><p>Regras, metodologia, bibliografia e rastreabilidade das fontes usadas pela plataforma.</p></div></div><div id="course-root"></div></section>
 
-      <section id="view-settings" class="view" data-view-panel="settings" aria-labelledby="settings-title">
-        <div class="page-heading"><div><p class="eyebrow">Persistência local</p><h1 id="settings-title">Configurações e backup</h1><p>Exporte ou restaure notas, faltas, checklists, exercícios, favoritos e anotações.</p></div></div>
-        <div id="settings-root"></div>
-      </section>
+      <section id="view-settings" class="view" data-view-panel="settings" aria-labelledby="settings-title"><div class="page-heading"><div><p class="eyebrow">Persistência local</p><h1 id="settings-title">Configurações e backup</h1><p>Exporte ou restaure notas, faltas, checklists, exercícios, favoritos e anotações.</p></div></div><div id="settings-root"></div></section>
     </main>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="src/data.js"></script>
-  <script src="src/exams.js"></script>
+  <script src="src/exams/2025-1-p1.js"></script>
+  <script src="src/exams/2025-2-p1.js"></script>
+  <script src="src/exams/2026-1-p1.js"></script>
+  <script src="src/exams/2026-1-p2.js"></script>
+  <script src="src/exams/2025-1-p3.js"></script>
+  <script src="src/exams/2025-2-p3.js"></script>
   <script src="src/app.js"></script>
+  <script src="src/enhancements.js"></script>
 </body>
 </html>
